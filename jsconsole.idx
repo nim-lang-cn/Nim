@@ -1,0 +1,18 @@
+Console	jsconsole.html#Console	jsconsole: Console	
+convertToConsoleLoggable	jsconsole.html#convertToConsoleLoggable,T	jsconsole: convertToConsoleLoggable[T](v: T): RootRef	
+convertToConsoleLoggable	jsconsole.html#convertToConsoleLoggable.t,string	jsconsole: convertToConsoleLoggable(v: string): RootRef	
+log	jsconsole.html#log.m,Console,varargs[RootRef,convertToConsoleLoggable]	jsconsole: log(console: Console; args: varargs[RootRef, convertToConsoleLoggable]): untyped	
+debug	jsconsole.html#debug.m,Console,varargs[RootRef,convertToConsoleLoggable]	jsconsole: debug(console: Console; args: varargs[RootRef, convertToConsoleLoggable]): untyped	
+info	jsconsole.html#info.m,Console,varargs[RootRef,convertToConsoleLoggable]	jsconsole: info(console: Console; args: varargs[RootRef, convertToConsoleLoggable]): untyped	
+error	jsconsole.html#error.m,Console,varargs[RootRef,convertToConsoleLoggable]	jsconsole: error(console: Console; args: varargs[RootRef, convertToConsoleLoggable]): untyped	
+warn	jsconsole.html#warn.m,Console,varargs[RootRef,convertToConsoleLoggable]	jsconsole: warn(console: Console; args: varargs[RootRef, convertToConsoleLoggable]): untyped	
+clear	jsconsole.html#clear,Console	jsconsole: clear(console: Console)	
+count	jsconsole.html#count,Console	jsconsole: count(console: Console; label = &quot;&quot;.cstring)	
+countReset	jsconsole.html#countReset,Console	jsconsole: countReset(console: Console; label = &quot;&quot;.cstring)	
+group	jsconsole.html#group,Console	jsconsole: group(console: Console; label = &quot;&quot;.cstring)	
+groupCollapsed	jsconsole.html#groupCollapsed,Console	jsconsole: groupCollapsed(console: Console; label = &quot;&quot;.cstring)	
+groupEnd	jsconsole.html#groupEnd,Console	jsconsole: groupEnd(console: Console)	
+time	jsconsole.html#time,Console	jsconsole: time(console: Console; label = &quot;&quot;.cstring)	
+timeEnd	jsconsole.html#timeEnd,Console	jsconsole: timeEnd(console: Console; label = &quot;&quot;.cstring)	
+timeLog	jsconsole.html#timeLog,Console	jsconsole: timeLog(console: Console; label = &quot;&quot;.cstring)	
+console	jsconsole.html#console_2	jsconsole: console	
