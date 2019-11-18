@@ -52,7 +52,7 @@ proc encodeUrl*(s: string, usePlus = true): string =
   ## 空格被编码为``'+'``而不是 ``'%20'``。
   ##
   ## **See also:**
-  ## * `decodeUrl proc<#decodeUrl,string>`_
+  ## * ``decodeUrl proc<#decodeUrl,string>``_
   runnableExamples:
     assert encodeUrl("https://nim-lang.org") == "https%3A%2F%2Fnim-lang.org"
     assert encodeUrl("https://nim-lang.org/this is a test") == "https%3A%2F%2Fnim-lang.org%2Fthis+is+a+test"
@@ -117,16 +117,16 @@ proc encodeQuery*(query: openArray[(string, string)], usePlus = true,
   ##
   ## 这些对由“&”字符连接在一起。
   ##
-  ## ``usePlus``参数被传递给`encodeUrl`函数，该函数用于字符串值的URL编码。
+  ## ``usePlus``参数被传递给 ``encodeUrl`` 函数，该函数用于字符串值的URL编码。
   ##
   ## **See also:**
-  ## * `encodeUrl proc<#encodeUrl,string>`_
+  ## * ``encodeUrl proc<#encodeUrl,string>``_
   runnableExamples:
     assert encodeQuery({: }) == ""
     assert encodeQuery({"a": "1", "b": "2"}) == "a=1&b=2"
     assert encodeQuery({"a": "1", "b": ""}) == "a=1&b"
   for elem in query:
-    # 对`key = value`对进行编码，并用`&`分隔它们
+    # 对 ``key = value`` 对进行编码，并用 ``&`` 分隔它们
     if result.len > 0: result.add('&')
     let (key, val) = elem
     result.add(encodeUrl(key, usePlus))
@@ -185,7 +185,7 @@ proc initUri*(): Uri =
   ## ``hostname``, ``port``, ``path``, ``query`` and ``anchor``.
   ##
   ## **See also:**
-  ## * `Uri type <#Uri>`_ for available fields in the URI type
+  ## * ``Uri type <#Uri>``_ for available fields in the URI type
   runnableExamples:
     var uri2: Uri
     assert initUri() == uri2
@@ -200,11 +200,11 @@ proc resetUri(uri: var Uri) =
       f = false
 
 proc parseUri*(uri: string, result: var Uri) =
-  ## 解析一个URI，变量`result`将会在解析之前被清楚。
+  ## 解析一个URI，变量 ``result`` 将会在解析之前被清楚。
   ##
   ## **See also:**
-  ## * `Uri type <#Uri>`_ for available fields in the URI type
-  ## * `initUri proc <#initUri>`_ for initializing a URI
+  ## * ``Uri type <#Uri>``_ for available fields in the URI type
+  ## * ``initUri proc <#initUri>``_ for initializing a URI
   runnableExamples:
     var res = initUri()
     parseUri("https://nim-lang.org/docs/manual.html", res)
@@ -218,7 +218,7 @@ proc parseUri*(uri: string, result: var Uri) =
   # 检查这是否是一个引用URI(相对URI)
   let doubleSlash = uri.len > 1 and uri[1] == '/'
   if i < uri.len and uri[i] == '/':
-    # 确保`uri`不以`//`开头
+    # 确保 ``uri`` 不以 ``//`` 开头
     if not doubleSlash:
       parsePath(uri, i, result)
       return
@@ -251,7 +251,7 @@ proc parseUri*(uri: string): Uri =
   ## 解析URI并返回它。
   ##
   ## **See also:**
-  ## * `Uri type <#Uri>`_ for available fields in the URI type
+  ## * ``Uri type <#Uri>`` _ for available fields in the URI type
   runnableExamples:
     let res = parseUri("ftp://Username:Password@Hostname")
     assert res.username == "Username"
@@ -304,12 +304,12 @@ proc merge(base, reference: Uri): string =
 proc combine*(base: Uri, reference: Uri): Uri =
   ## 将基URI与引用URI组合。
   ##
-  ## 这使用了指定的算法`section 5.2.2 of RFC 3986 <http://tools.ietf.org/html/rfc3986#section-5.2.2>`_.
+  ## 这使用了指定的算法 ``section 5.2.2 of RFC 3986 <http://tools.ietf.org/html/rfc3986#section-5.2.2>``_.
   ##
   ## 这意味着基URI路径和引用URI路径中的斜线将影响结果URI。
   ##
   ## **See also:**
-  ## * `/ proc <#/,Uri,string>`_ for building URIs
+  ## * ``/ proc <#/,Uri,string>``_ for building URIs
   runnableExamples:
     let foo = combine(parseUri("https://nim-lang.org/foo/bar"), parseUri("/baz"))
     assert foo.path == "/baz"
@@ -354,7 +354,7 @@ proc combine*(uris: varargs[Uri]): Uri =
   ## 将多个uri组合在一起。
   ##
   ## **See also:**
-  ## * `/ proc <#/,Uri,string>`_ for building URIs
+  ## * ``/ proc <#/,Uri,string>``_ for building URIs
   runnableExamples:
     let foo = combine(parseUri("https://nim-lang.org/"), parseUri("docs/"),
         parseUri("manual.html"))
@@ -373,13 +373,13 @@ proc isAbsolute*(uri: Uri): bool =
     assert isAbsolute(bar) == false
   return uri.scheme != "" and (uri.hostname != "" or uri.path != "")
 
-proc `/`*(x: Uri, path: string): Uri =
+proc ``/``*(x: Uri, path: string): Uri =
   ## 将指定的路径连接到指定URI的路径。
   ##
   ## 与“组合”过程相反，您不必分别担心路径的开始和结束处的斜线和URI的路径
   ##
   ## **See also:**
-  ## * `combine proc <#combine,Uri,Uri>`_
+  ## * ``combine proc <#combine,Uri,Uri>``_
   runnableExamples:
     let foo = parseUri("https://nim-lang.org/foo/bar") / "/baz"
     assert foo.path == "/foo/bar/baz"
@@ -405,7 +405,7 @@ proc `/`*(x: Uri, path: string): Uri =
       result.path.add '/'
     result.path.add(path)
 
-proc `?`*(u: Uri, query: openArray[(string, string)]): Uri =
+proc ``?``*(u: Uri, query: openArray[(string, string)]): Uri =
   ## 将查询参数连接到指定的URI对象。
   runnableExamples:
     let foo = parseUri("https://example.com") / "foo" ? {"bar": "qux"}
@@ -413,7 +413,7 @@ proc `?`*(u: Uri, query: openArray[(string, string)]): Uri =
   result = u
   result.query = encodeQuery(query)
 
-proc `$`*(u: Uri): string =
+proc ``$``*(u: Uri): string =
   ## 返回指定URI对象的字符串表示形式。
   runnableExamples:
     let foo = parseUri("https://nim-lang.org")
@@ -600,7 +600,7 @@ when isMainModule:
                          parseUri("baz"))
     doAssert concat.path == "/foo/test/bar/baz"
 
-  # `/` tests
+  # ``/`` tests
   block:
     let test = parseUri("http://example.com/foo") / "bar/asd"
     doAssert test.path == "/foo/bar/asd"
@@ -616,7 +616,7 @@ when isMainModule:
 
   # bug #3207
   block:
-    doAssert parseUri("http://qq/1").combine(parseUri("https://qqq")).`$` == "https://qqq"
+    doAssert parseUri("http://qq/1").combine(parseUri("https://qqq")). ``$`` == "https://qqq"
 
   # bug #4959
   block:
