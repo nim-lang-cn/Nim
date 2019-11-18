@@ -57,28 +57,28 @@ type
   LibHandle* = pointer ## 一个指向动态加载库的句柄
 
 proc loadLib*(path: string, globalSymbols = false): LibHandle {.gcsafe.}
-  ## 从路径 `path` 引入一个库。如果加载失败，则返回 `nil`。
+  ## 从路径 path 引入一个库。如果加载失败，则返回 nil。
 
 proc loadLib*(): LibHandle {.gcsafe.}
   ## 从当前可执行文件获取动态库的句柄，如果库无法加载，则返回 nil
 
 proc unloadLib*(lib: LibHandle) {.gcsafe.}
-  ## 卸载 `lib` 库
+  ## 卸载 lib 库
 
 proc raiseInvalidLibrary*(name: cstring) {.noinline, noreturn.} =
-  ## 触发一个 `EInvalidLibrary` 异常。
+  ## 触发一个 EInvalidLibrary 异常。
   raise newException(LibraryError, "could not find symbol: " & $name)
 
 proc symAddr*(lib: LibHandle, name: cstring): pointer {.gcsafe.}
-  ## 从 `lib` 库中获取一个过程或变量的地址。如果符号无法找到，则返回 `nil`。
+  ## 从 lib 库中获取一个过程或变量的地址。如果符号无法找到，则返回 nil。
 
 proc checkedSymAddr*(lib: LibHandle, name: cstring): pointer =
-  ## 从 `lib` 库中获取一个过程或变量的地址。如果符号无法找到，则会触发 `EInvalidLibrary` 异常。
+  ## 从 lib 库中获取一个过程或变量的地址。如果符号无法找到，则会触发 EInvalidLibrary 异常。
   result = symAddr(lib, name)
   if result == nil: raiseInvalidLibrary(name)
 
 proc libCandidates*(s: string, dest: var seq[string]) =
-  ## 给定一个匹配的库名称 `s` ，将可能的库名称写入 `desc`
+  ## 给定一个匹配的库名称 s ，将可能的库名称写入 desc
   var le = strutils.find(s, '(')
   var ri = strutils.find(s, ')', le+1)
   if le >= 0 and ri > le:
@@ -90,7 +90,7 @@ proc libCandidates*(s: string, dest: var seq[string]) =
     add(dest, s)
 
 proc loadLibPattern*(pattern: string, globalSymbols = false): LibHandle =
-  ## 载入名称与 `pattern` 相匹配的库，与 `dlimport` 注解效果类似。如果库无法载入，则返回 `nil`。
+  ## 载入名称与 pattern 相匹配的库，与 dlimport 注解效果类似。如果库无法载入，则返回 nil。
   ## 警告：该过程涉及到 GC，因此不能用来加载 GC 相关的库。
   var candidates = newSeq[string]()
   libCandidates(pattern, candidates)
