@@ -110,7 +110,7 @@ proc indentLine(p: PProc, r: Rope): Rope =
   var p = p
   while true:
     for i in 0 ..< p.blocks.len + p.extraIndent:
-      prepend(result, "\t".rope)
+      prepend(result, rope"  ")
     if p.up == nil or p.up.prc != p.prc.owner:
       break
     p = p.up
@@ -975,7 +975,7 @@ proc countJsParams(typ: PType): int =
 
 const
   nodeKindsNeedNoCopy = {nkCharLit..nkInt64Lit, nkStrLit..nkTripleStrLit,
-    nkFloatLit..nkFloat64Lit, nkCurly, nkPar, nkStringToCString,
+    nkFloatLit..nkFloat64Lit, nkPar, nkStringToCString,
     nkObjConstr, nkTupleConstr, nkBracket,
     nkCStringToString, nkCall, nkPrefix, nkPostfix, nkInfix,
     nkCommand, nkHiddenCallConv, nkCallStrLit}
@@ -1169,7 +1169,7 @@ proc genArrayAddr(p: PProc, n: PNode, r: var TCompRes) =
     first = firstOrd(p.config, typ.sons[0])
   if optBoundsCheck in p.options:
     useMagic(p, "chckIndx")
-    r.res = "chckIndx($1, $2, $3.length+$2-1)-$2" % [b.res, rope(first), tmp]
+    r.res = "chckIndx($1, $2, ($3 != null ? $3.length : 0)+$2-1)-$2" % [b.res, rope(first), tmp]
   elif first != 0:
     r.res = "($1)-$2" % [b.res, rope(first)]
   else:
@@ -1295,12 +1295,16 @@ proc genCopyForParamIfNeeded(p: PProc, n: PNode) =
       return
     owner = owner.up
 
+proc genVarInit(p: PProc, v: PSym, n: PNode)
+
 proc genSym(p: PProc, n: PNode, r: var TCompRes) =
   var s = n.sym
   case s.kind
   of skVar, skLet, skParam, skTemp, skResult, skForVar:
     if s.loc.r == nil:
       internalError(p.config, n.info, "symbol has no generated name: " & s.name.s)
+    if sfCompileTime in s.flags:
+      genVarInit(p, s, if s.ast != nil: s.ast else: newNodeI(nkEmpty, s.info))
     if s.kind == skParam:
       genCopyForParamIfNeeded(p, n)
     let k = mapType(p, s.typ)
@@ -1732,7 +1736,11 @@ proc genVarStmt(p: PProc, n: PNode) =
         var v = a.sons[0].sym
         if lfNoDecl notin v.loc.flags and sfImportc notin v.flags:
           genLineDir(p, a)
-          genVarInit(p, v, a.sons[2])
+          if sfCompileTime notin v.flags:
+            genVarInit(p, v, a.sons[2])
+          else:
+            # lazy emit, done when it's actually used.
+            if v.ast == nil: v.ast = a[2]
 
 proc genConstant(p: PProc, c: PSym) =
   if lfNoDecl notin c.loc.flags and not p.g.generatedSyms.containsOrIncl(c.id):

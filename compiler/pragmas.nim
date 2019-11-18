@@ -66,7 +66,7 @@ const
   varPragmas* = declPragmas + {wVolatile, wRegister, wThreadVar,
     wMagic, wHeader, wCompilerProc, wCore, wDynlib,
     wNoInit, wCompileTime, wGlobal,
-    wGensym, wInject, wCodegenDecl, wGuard, wGoto, wCursor}
+    wGensym, wInject, wCodegenDecl, wGuard, wGoto}
   constPragmas* = declPragmas + {wHeader, wMagic,
     wGensym, wInject,
     wIntDefine, wStrDefine, wBoolDefine, wCompilerProc, wCore}
@@ -720,7 +720,7 @@ proc pragmaGuard(c: PContext; it: PNode; kind: TSymKind): PSym =
 proc semCustomPragma(c: PContext, n: PNode): PNode =
   var callNode: PNode
 
-  if n.kind == nkIdent:
+  if n.kind in {nkIdent, nkSym}:
     # pragma -> pragma()
     callNode = newTree(nkCall, n)
   elif n.kind == nkExprColonExpr:
@@ -1103,11 +1103,6 @@ proc singlePragma(c: PContext, sym: PSym, n: PNode, i: var int,
           invalidPragma(c, it)
         else:
           sym.flags.incl sfGoto
-      of wCursor:
-        if sym == nil or sym.kind notin {skVar, skLet}:
-          invalidPragma(c, it)
-        else:
-          sym.flags.incl sfCursor
       of wExportNims:
         if sym == nil: invalidPragma(c, it)
         else: magicsys.registerNimScriptSymbol(c.graph, sym)

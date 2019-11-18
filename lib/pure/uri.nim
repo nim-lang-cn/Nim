@@ -44,12 +44,8 @@ type
     hostname*, port*, path*, query*, anchor*: string
     opaque*: bool
 
-proc encodeUrl*(s: string, usePlus=true): string =
-  ## 这个模块按照RFC 3986编码规范解析URI
-  ##
-  ## 这意味着字符在集合中 ``{'a'..'z', 'A'..'Z', '0'..'9', '-', '.', '_', '~'}``,
-  ## 结转到结果.
-  ## 所有其他字符都被编码为 ``''%xx'`` 当 ``xx``表示其十六进制值时。
+proc encodeUrl*(s: string, usePlus = true): string =
+  ## 这个模块按照 RFC3986 编码规范解析 URI
   ##
   ##
   ## ## 作为一个特殊的规则，当 ``usePlus``的值为真时，
@@ -72,8 +68,8 @@ proc encodeUrl*(s: string, usePlus=true): string =
       add(result, '%')
       add(result, toHex(ord(c), 2))
 
-proc decodeUrl*(s: string, decodePlus=true): string =
-  ## 根据RFC3986对URL进行解码。
+proc decodeUrl*(s: string, decodePlus = true): string =
+  ## 根据 RFC3986 对 URL 进行解码。
   ##
   ## 这意味着任何``'%xx'``(其中``xx``表示十六进制)被转换为序号为 ``xx``的字符，
   ## 其他所有的字符都被保留了下来。
@@ -85,7 +81,8 @@ proc decodeUrl*(s: string, decodePlus=true): string =
   runnableExamples:
     assert decodeUrl("https%3A%2F%2Fnim-lang.org") == "https://nim-lang.org"
     assert decodeUrl("https%3A%2F%2Fnim-lang.org%2Fthis+is+a+test") == "https://nim-lang.org/this is a test"
-    assert decodeUrl("https%3A%2F%2Fnim-lang.org%2Fthis%20is%20a%20test", false) == "https://nim-lang.org/this is a test"
+    assert decodeUrl("https%3A%2F%2Fnim-lang.org%2Fthis%20is%20a%20test",
+        false) == "https://nim-lang.org/this is a test"
   proc handleHexChar(c: char, x: var int) {.inline.} =
     case c
     of '0'..'9': x = (x shl 4) or (ord(c) - ord('0'))
@@ -114,11 +111,9 @@ proc decodeUrl*(s: string, decodePlus=true): string =
     inc(j)
   setLen(result, j)
 
-proc encodeQuery*(query: openArray[(string, string)], usePlus=true, omitEq=true): string =
-  ## 将一组(键、值)参数编码到URL查询字符串中。
-  ## 
-  ## 每个(键值)对都是url编码的，并被写成`` key=value``。
-  ## 如果该值是一个空字符串，那么``=``将被省略，除非``omitEq``为false
+proc encodeQuery*(query: openArray[(string, string)], usePlus = true,
+    omitEq = true): string =
+  ## 将一组(键、值)参数编码到 URL 查询字符串中。
   ##
   ## 这些对由“&”字符连接在一起。
   ##
@@ -127,7 +122,7 @@ proc encodeQuery*(query: openArray[(string, string)], usePlus=true, omitEq=true)
   ## **See also:**
   ## * `encodeUrl proc<#encodeUrl,string>`_
   runnableExamples:
-    assert encodeQuery({:}) == ""
+    assert encodeQuery({: }) == ""
     assert encodeQuery({"a": "1", "b": "2"}) == "a=1&b=2"
     assert encodeQuery({"a": "1", "b": ""}) == "a=1&b"
   for elem in query:
@@ -361,7 +356,8 @@ proc combine*(uris: varargs[Uri]): Uri =
   ## **See also:**
   ## * `/ proc <#/,Uri,string>`_ for building URIs
   runnableExamples:
-    let foo = combine(parseUri("https://nim-lang.org/"), parseUri("docs/"), parseUri("manual.html"))
+    let foo = combine(parseUri("https://nim-lang.org/"), parseUri("docs/"),
+        parseUri("manual.html"))
     assert foo.hostname == "nim-lang.org"
     assert foo.path == "/docs/manual.html"
   result = uris[0]
@@ -706,11 +702,11 @@ when isMainModule:
     doAssert encodeQuery({:}) == ""
     doAssert encodeQuery({"foo": "bar"}) == "foo=bar"
     doAssert encodeQuery({"foo": "bar & baz"}) == "foo=bar+%26+baz"
-    doAssert encodeQuery({"foo": "bar & baz"}, usePlus=false) == "foo=bar%20%26%20baz"
+    doAssert encodeQuery({"foo": "bar & baz"}, usePlus = false) == "foo=bar%20%26%20baz"
     doAssert encodeQuery({"foo": ""}) == "foo"
-    doAssert encodeQuery({"foo": ""}, omitEq=false) == "foo="
+    doAssert encodeQuery({"foo": ""}, omitEq = false) == "foo="
     doAssert encodeQuery({"a": "1", "b": "", "c": "3"}) == "a=1&b&c=3"
-    doAssert encodeQuery({"a": "1", "b": "", "c": "3"}, omitEq=false) == "a=1&b=&c=3"
+    doAssert encodeQuery({"a": "1", "b": "", "c": "3"}, omitEq = false) == "a=1&b=&c=3"
 
     block:
       var foo = parseUri("http://example.com") / "foo" ? {"bar": "1", "baz": "qux"}

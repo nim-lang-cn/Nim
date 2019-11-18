@@ -314,6 +314,7 @@ proc litAux(g: TSrcGen; n: PNode, x: BiggestInt, size: int): string =
     while result != nil and result.kind in {tyGenericInst, tyRange, tyVar, tyLent, tyDistinct,
                           tyOrdinal, tyAlias, tySink}:
       result = lastSon(result)
+
   let typ = n.typ.skip
   if typ != nil and typ.kind in {tyBool, tyEnum}:
     if sfPure in typ.sym.flags:
@@ -325,10 +326,12 @@ proc litAux(g: TSrcGen; n: PNode, x: BiggestInt, size: int): string =
         result &= e.sym.name.s
         return
 
-  let y = x and ((1 shl (size*8)) - 1)
-  if nfBase2 in n.flags: result = "0b" & toBin(y, size * 8)
-  elif nfBase8 in n.flags: result = "0o" & toOct(y, size * 3)
-  elif nfBase16 in n.flags: result = "0x" & toHex(y, size * 2)
+  if nfBase2 in n.flags: result = "0b" & toBin(x, size * 8)
+  elif nfBase8 in n.flags:
+    var y = if size < sizeof(BiggestInt): x and ((1 shl (size*8)) - 1)
+            else: x
+    result = "0o" & toOct(y, size * 3)
+  elif nfBase16 in n.flags: result = "0x" & toHex(x, size * 2)
   else: result = $x
 
 proc ulitAux(g: TSrcGen; n: PNode, x: BiggestInt, size: int): string =
@@ -474,7 +477,7 @@ proc lsub(g: TSrcGen; n: PNode): int =
         len("if_:_")
   of nkElifExpr: result = lsons(g, n) + len("_elif_:_")
   of nkElseExpr: result = lsub(g, n.sons[0]) + len("_else:_") # type descriptions
-  of nkTypeOfExpr: result = (if n.len > 0: lsub(g, n.sons[0]) else: 0)+len("type()")
+  of nkTypeOfExpr: result = (if n.len > 0: lsub(g, n.sons[0]) else: 0)+len("typeof()")
   of nkRefTy: result = (if n.len > 0: lsub(g, n.sons[0])+1 else: 0) + len("ref")
   of nkPtrTy: result = (if n.len > 0: lsub(g, n.sons[0])+1 else: 0) + len("ptr")
   of nkVarTy: result = (if n.len > 0: lsub(g, n.sons[0])+1 else: 0) + len("var")
@@ -850,7 +853,8 @@ proc gident(g: var TSrcGen, n: PNode) =
   else:
     t = tkOpr
   if n.kind == nkSym and (renderIds in g.flags or sfGenSym in n.sym.flags or n.sym.kind == skTemp):
-    s.genSymSuffix(n.sym)
+    s.add '_'
+    s.addInt n.sym.id
     when defined(debugMagics):
       s.add '_'
       s.add $n.sym.magic
@@ -1195,7 +1199,7 @@ proc gsub(g: var TSrcGen, n: PNode, c: TContext) =
     putWithSpace(g, tkColon, ":")
     gsub(g, n, 0)
   of nkTypeOfExpr:
-    put(g, tkType, "type")
+    put(g, tkType, "typeof")
     put(g, tkParLe, "(")
     if n.len > 0: gsub(g, n.sons[0])
     put(g, tkParRi, ")")

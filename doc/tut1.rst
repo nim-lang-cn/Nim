@@ -48,16 +48,21 @@ Nim编译器默认生成大量运行时检查，旨在方便调试。用 ``-d:re
 
 程序的作用显而易见，需要解释下语法：没有缩进的语句会在程序开始时执行。缩进是Nim语句进行分组的方式。缩进仅允许空格，不允许制表符。
 
-字符串字面值用双引号括起来。 ``var`` 语句声明一个新的名为 ``name`` ，类型为 ``string`` ，值为 `readLine <system.html#readLine,File>`_ 方法返回值的变量名。
-因为编译器知道 `readLine <system.html#readLine,File>`_ 返回一个字符串，你可以省略声明中的类型(这叫作 `局部类型推导`:idx: )。所以也可以这样：
+字符串用双引号括起来。 
+``var`` 语句声明了一个名为 ``name`` 的新变量，
+它的类型为 ``string`` ，值由 `readLine <io.html#readLine,File>`_ 过程返回。
+因为编译器明确知道 `readLine <io.html#readLine,File>`_ 返回的是一个字符串，
+所以你可以省略声明中的类型(这叫作 `局部类型推导`:idx: )。所以也可以这样用：
 
 .. code-block:: Nim
     :test: "nim c $1"
   var name = readLine(stdin)
 
-请注意，这基本上是Nim中存在的唯一类型推导形式：兼顾简洁与可读。
+请注意，这基本上是Nim中存在的唯一类型推导形式：兼顾了简洁与可读性。
 
-"hello world"程序包括一些编译器已知的标识符： ``echo`` ， `readLine <system.html#readLine,File>`_ 等。这些内置声名在 system_ 模块中，system_ 模块通过其它模块隐式的导出。
+"hello world" 程序包含了一些编译器已知的标识符：
+ ``echo`` 、 `readLine <io.html#readLine,File>`_ 等。
+ 这些内置项被声明在了在由任何其他模块隐式导入的 system_ 模块中。
 
 词法元素
 ================
@@ -104,14 +109,6 @@ Nim编译器默认生成大量运行时检查，旨在方便调试。用 ``-d:re
        Note: these can be nested!!
     ]#
   ]#
-
-你也可以和 *长字符串字面值* 一起使用 `discard语句 <#procedures-discard-statement>`_ 来构建块注释。
-
-.. code-block:: nim
-    :test: "nim c $1"
-  discard """ You can have any Nim code text commented
-  out inside this with no indentation restrictions.
-        yes("May I ask a pointless question?") """
 
 
 数字
@@ -268,8 +265,9 @@ case语句可以处理整型、其它序数类型和字符串。（序数类型�
   of 3, 8: echo "The number is 3 or 8"
   else: discard
 
-空 `discard语句`_ 是一个 *什么都不做* 的语句。编译器知道带有else部分的case语句不会失败，因此错误消失。
-请注意，不可能覆盖所有可能的字符串值：这就是字符串情况总是需要else分支的原因。
+空 `discard 语句 <#procedures-discard-statement>`_ 是一个 *什么都不做* 的语句。
+编译器知道带有 else 部分的 case 语句不会失败，因此错误消失。
+请注意，不可能覆盖所有可能的字符串值：这就是字符串情况总是需要 else 分支的原因。
 
 通常情况下，case语句用于枚举的子范围类型，其中编译器对检查您是否覆盖了任何可能的值有很大帮助。
 
@@ -295,7 +293,8 @@ while语句是一个简单的循环结构:
 For语句
 -------------
 
-``for`` 语句是一个循环遍历迭代器提供的任何元素的构造。示例使用内置的 `countup <system.html#countup>`_ 迭代器:
+``for`` 语句是一个用于循环遍历 *迭代器* 提供的所有元素的构造。
+这个例子中使用了内置的 `<system.html#countup.i,T,T,Positive>`_ 迭代器:
 
 .. code-block:: nim
     :test: "nim c $1"
@@ -304,8 +303,8 @@ For语句
     echo i
   # --> Outputs 1 2 3 4 5 6 7 8 9 10 on different lines
 
-变量 ``i`` 通过 ``for`` 循环隐式的声明并具有 ``int`` 类型, 因为这里 `countup <system.html#countup>`_ 返回的。
-``i`` 遍历 1, 2, .., 10，每个值被 ``echo`` 。 这段代码作用是一样的:
+变量 ``i`` 通过 ``for`` 循环隐式地声明，因为是由 `countup <system.html#countup.i,T,T,Positive>`_ 返回的，所以是 ``int`` 类型。
+``i`` 遍历出了 1, 2, .., 10，然后每个值都被 ``echo`` 。 你也可以像下面这样写:
 
 .. code-block:: nim
   echo "Counting to 10: "
@@ -324,7 +323,7 @@ For语句
     echo i
   # --> Outputs 10 9 8 7 6 5 4 3 2 1 on different lines
 
-计数在程序中经常出现，Nim有一个 `..<system.html#...i,S,T>`_ 迭代器作用是一样的
+因为计数在程序中经常出现，所以 Nim 还有一个 `..<system.html#...i,S,T>`_ 迭代器用来实现这个功能：
 
 .. code-block:: nim
   for i in 1..10:
@@ -480,11 +479,12 @@ When语句
   const fac4 = (var x = 1; for i in 1..4: x *= i; x)
 
 
-过程
+Procedure(过程)
 ==========
 
-为了在示例中定义如 `echo <system.html#echo>`_ 和 `readLine <system.html#readLine,File>`_ 的新命令, 需要 `procedure` 的概念。
-(一些语言叫 *方法* 或 *函数* 。) 在Nim中新的过程用 ``proc`` 关键字定义:
+为了在示例中定义像 `echo <system.html#echo,varargs[typed,]>`_ 和 `readLine <io.html#readLine,File>`_ 这样的新命令, 
+需要 `procedure` （过程）的概念。(一些语言叫 *methods (方法)* 或 *functions (函数)* 。) 
+在Nim中用 ``proc`` 关键字来定义一个过程:
 
 .. code-block:: nim
     :test: "nim c $1"
@@ -627,8 +627,11 @@ Nim提供类似C++的过程重载能力：
   echo toString(13)   # calls the toString(x: int) proc
   echo toString(true) # calls the toString(x: bool) proc
 
-(注意 ``toString`` 通常是Nim中的 `$ <system.html#$>`_ 。) 编译器为 ``toString`` 调用选择最合适的过程。 
-重载解析算法不在这里讨论（会在手册中具体说明）。 不论如何，它不会导致意外，并且基于一个非常简单的统一算法。有歧义的调用会作为错误报告。
+(注意 ``toString`` 通常是 Nim 中的 `$ <dollars.html>`_ 操作符。) 
+编译器会为 ``toString`` 的调用选择最合适的过程。 
+这里不讨论这个重载解析算法是如何精确工作的（会在手册中具体说明）。 
+不管怎么说，它并不会导致什么意外，并是基于一个非常简单的统一算法。
+有歧义的调用会报错。
 
 
 操作符
@@ -696,7 +699,7 @@ Nim库重度使用重载，一个原因是每个像 ``+`` 的操作符就是一�
   for i in countup(1, 10):
     echo i
 
-一个 `countup <system.html#countup>`_ 过程可以支持这个循环吗？让我们试试：
+写一个 `countup <system.html#countup.i,T,T,Positive>`_ 过程可以实现这个循环吗？让我们试试：
 
 .. code-block:: nim
   proc countup(a, b: int): int =
@@ -810,7 +813,9 @@ Nim有这些内置浮点类型： ``float float32 float64`` 。
 
 浮点类型支持通用操作符 ``+ - * /  <  <=  ==  !=  >  >=`` 并遵循IEEE-754标准。
 
-自动类型转换在表达式中使用不同类型时执行：短类型转换为长类型。整数类型 **不** 会自动转换为浮点类型，反之亦然。使用 `toInt <system.html#toInt>`_ 和 `toFloat <system.html#toFloat>`_ 过程来转换。
+在具有不同浮点类型的表达式中执行自动类型转换：短类型被转换为了长类型。
+整数类型 **不** 会自动转换为浮点类型，反之亦然。
+需要使用 `toInt <system.html#toInt,float>`_ 和 `toFloat <system.html#toFloat,int>`_ 过程来转换。
 
 
 类型转换
@@ -829,8 +834,12 @@ Nim有这些内置浮点类型： ``float float32 float64`` 。
 内部类型表示
 ============================
 
-之前提到过，内置的 `$ <system.html#$>`_ （字符串化）操作符将基本类型转换成字符串，这样可以用 ``echo`` 过程将内容打印到控制台上。但是高级类型和你自定义的类型，需要定义 ``$`` 操作符才能使用。
-有时你只想在没有写一个高级类型的 ``$`` 操作符时调试当前的值，那么你可以用 `repr <system.html#repr>`_ 过程，它可以用于任何类型甚至复杂的有环数据图。下面的示例展示了  ``$`` and ``repr`` 在即使基本类型输出上也有不同：
+之前提到过，内置的 `$ <dollars.html>`_ （字符串化）操作符将基本类型转换成了字符串，
+所以你才可以用 ``echo`` 过程将内容打印到控制台上。
+但是高级类型和你自定义的类型，需要为他们定义了 ``$`` 操作符才能使用。
+有时你可能只想调试复杂类型的当前值，而不想再去编写它的 ``$`` 运算符。
+那么你可以用 `repr <system.html#repr,T>`_ 过程，它可以用于任何类型甚至复杂的循环数据图。
+下面的示例表明，即使对于基本类型，``$`` 和 ``repr`` 的输出之间也存在差异：
 
 .. code-block:: nim
     :test: "nim c $1"
@@ -909,7 +918,9 @@ Operation             Comment
 ``pred(x, n)``        返回 `x` 前的第n个值
 -----------------     --------------------------------------------------------
 
-`inc <system.html#inc>`_, `dec <system.html#dec>`_, `succ <system.html#succ>`_ 和 `pred <system.html#pred>`_ 操作通过抛出 `EOutOfRange` 或 `EOverflow` 异常而失败。
+`inc <system.html#inc,T,int>`_、 `dec <system.html#dec,T,int>`_、
+`succ <system.html#succ,T,int>`_ 和 `pred <system.html#pred,T,int>`_ 
+操作符可能会失败并抛出一个 `EOutOfRange` 或 `EOverflow` 异常。
 （如果代码编译时打开了运行时检查。）
 
 
@@ -925,8 +936,11 @@ Operation             Comment
 
 ``MySubrange`` 是只包含0到5的 ``int`` 范围。赋任何其它值给 ``MySubrange`` 类型的变量是编译期或运行时错误。允许给子范围赋值它的基类型，反之亦然。
 
-``system`` 模块定义了重要的 `Natural <system.html#Natural>`_ 类型 ``range[0..high(int)]`` (`high <system.html#high>`_ 返回最大值）。其它编程语言可能建议使用无符号整数。这通常是 **不明智的** : 
-你不希望因为数字不能是负值而使用无符号算术。Nim的 ``Natural`` 类型帮助避免这个编程错误。
+``system`` 模块定义了重要的 `Natural(自然数) <system.html#Natural>`_ 类型，
+作为 ``range[0..high(int)]``的类型 (`high <system.html#high,typedesc[T]>`_ 返回最大值）。
+其它编程语言可能建议对自然数的情况使用无符号整数。这通常是 **不明智的** : 
+你不希望因为数字不能为负而使用无符号算术。
+Nim的 ``Natural`` 类型有助于避免这个常见的编程错误。
 
 
 集合类型
@@ -1029,7 +1043,9 @@ Operation             Comment
 
 数组是值类型，和任何其它Nim类型一样。赋值操作符拷贝整个数组内容。
 
-内置 `len <system.html#len,TOpenArray>`_ 过程返回数组长度。 `low(a) <system.html#low>`_ 返回数组a的最小索引， `high(a) <system.html#high>`_ 返回最大索引。
+内置的 `len <system.html#len,TOpenArray>`_ 过程返回数组的长度。
+`low(a) <system.html#low,openArray[T]>`_ 返回数组 ``a`` 的最小索引， 
+`high(a) <system.html#high,openArray[T]>`_ 则返回最大索引。
 
 .. code-block:: nim
     :test: "nim c $1"
@@ -1093,7 +1109,11 @@ Operation             Comment
 ---------
 序列类似数组但是动态长度，可以在运行时改变（像字符串）。因为序列是大小可变的它们总是分配在堆上，被垃圾回收。
 
-序列总是以从零开始的 ``int`` 类型索引。 `len <system.html#len,seq[T]>`_ , `low <system.html#low>`_ 和 `high <system.html#high>`_ 操作符也可用于序列。 ``x[i]`` 标记可以用于访问 ``x`` 的第i个元素。
+序列的索引总是从零开始递增的 ``int`` 类型。
+`len <system.html#len,seq[T]>`_ ，
+`low <system.html#low,openArray[T]>`_ 
+和 `<system.html#high,openArray[T]>`_ 操作符也可用于序列。
+``x[i]`` 标记可以用于访问 ``x`` 的第 i 个元素。
 
 序列可以用数组构造器 ``[]`` 数组到序列操作符 ``@`` 构成。另一个为序列分配空间的方法是调用内置 `newSeq <system.html#newSeq>`_ 过程。
 
@@ -1132,8 +1152,11 @@ Example:
 -----------
 **注意**: 开放数组只用于形参。
 
-固定大小的数组经常被证明是不够灵活的；过程应当能够处理不同大小的数组。 `开放数组`:idx: 类型允许这样。开放数组总是以0开始的 ``int`` 索引。
-`len <system.html#len,TOpenArray>`_, `low <system.html#low>`_ 和 `high <system.html#high>`_ 操作符也可以用于开放数组。任何兼容基类型的数组可以传递给开放数组形参, 与索引类型无关。
+固定大小的数组往往过于死板；而过程也应当能够处理不同大小的数组。
+`开放数组`:idx: 类型为我们带来了可能。开放数组的索引总是以0开始的 ``int`` 。
+`len <system.html#len,TOpenArray>`_, `low <system.html#low,openArray[T]>`_ 
+和 `high <system.html#high,openArray[T]>`_ 操作符也可以在开放数组使用。
+所有兼容基类型的数组都可以代入开放数组参数，索引类型无关紧要。
 
 .. code-block:: nim
     :test: "nim c $1"
@@ -1183,7 +1206,10 @@ Example:
   # 编译器转为:
   myWriteln(stdout, [$123, $"abc", $4.0])
 
-在示例中 `$ <system.html#$>`_ 适用于任何传递给形参 ``a`` 的实参。注意 `$ <system.html#$>`_ 适用于空字符串指令。
+在示例中 `$ <dollars.html>`_ 适用于任何传递给形参 ``a`` 的实参。
+注意 `$ <dollars.html>`_ 适用于空字符串指令。
+Note that `$ <dollars.html>`_ applied to strings is a
+nop.
 
 
 切片
@@ -1330,8 +1356,12 @@ Example:
 
 即使你不需要为元组声明类型就可以使用，不同字段名创建的元组将认为是不同的对象，尽管有相同的字段类型。
 
-元组只有在变量赋值期间可以 *解包* 。 这方便将元组字段直接一个个赋值给命名变量。一个例子是 `os module <os.html>`_ 模块中的 `splitFile <os.html#splitFile>`_ 过程，
-它同时返回一个路径的目录、名称和扩展名。元组解包必须使用小括号括住你想赋值的解包变量，否则你将为每个变量赋同样的值！例如：
+元组在且只在变量赋值期间被 *解包* 。 
+这可以方便地将元组的字段直接赋值给一个个命名的变量。
+`os module <os.html>`_ 模块中的 `splitFile <os.html#splitFile,string>`_ 过程就是一个例子，
+它同时返回一个路径的目录、名称和扩展名。
+元组解包必须使用小括号括住你想赋值的解包变量，否则所有的变量都会赋上相同的值！
+例如：
 
 .. code-block:: nim
     :test: "nim c $1"

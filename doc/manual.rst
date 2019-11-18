@@ -190,7 +190,12 @@ Nim的标准语法描述了一个 `缩进敏感`:idx: 语言。
 标识符 & 关键字
 ----------------------
 
-Nim中的标识符可以是任何以字母开头的数字、字母和下划线。不允许两个连续的下划线 ``__`` ::
+Nim中的标识符可以是任何以字母开头的数字、字母
+和下划线。但有以下限制:
+
+* 必须以字母开头
+* 不能以下划线 ``_`` 结尾
+* 不允许两个连续的下划线 ``_`` ::
 
   letter ::= 'A'..'Z' | 'a'..'z' | '\x80'..'\xff'
   digit ::= '0'..'9'
@@ -1224,9 +1229,9 @@ cstring类型
 构造函数中字段的顺序必须与元组定义的顺序相匹配。
 如果它们以相同的顺序指定相同类型的相同字段，则不同的元组类型 *等效* 。字段的 *名称* 也必须相同。
 
-元组的赋值运算符复制每个组件。
-对象的默认赋值运算符复制每个组件。
-在 `type-bound-operations-operator`_ 中描述了赋值运算符的重载。
+元组的赋值运算符会对每个组件进行复制。
+对象的默认赋值运算符也会复制每一个组件。
+在 `这里 <manual_experimental.html#type-bound-operations>`_ 描述了赋值运算符的重载。
 
 .. code-block:: nim
 
@@ -1794,9 +1799,10 @@ Distinct类型
 
   db.query("SELECT FROM users WHERE name = '$1'".SQL % [username])
 
-现在我们有针对SQL注入攻击的编译时检查。
-因为 ``"".SQL`` 转换为 ``SQL("")`` 不需要新的语法来获得漂亮的 ``SQL`` 字符串字面值。 
-假设的 ``SQL`` 类型实际上存在于库中，作为 `db_sqlite <db_sqlite.html>`_ 等模块的 `TSqlQuery类型<db_sqlite.html＃TSqlQuery>`_ 。
+现在我们针对SQL注入攻击有了编译时的检查。
+因为 ``"".SQL`` 转换为 ``SQL("")`` 这种漂亮的 ``SQL`` 字符串并不需要新的语法。
+我们所说的 ``SQL`` 类型实际上存在于库中，
+作为像 `db_sqlite <db_sqlite.html>`_ 这类模块的 `SqlQuery type <db_common.html#SqlQuery>`_ 。
 
 
 自动类型
@@ -2257,7 +2263,7 @@ tuple[x: A, y: B, ...]          (default(A), default(B), ...)
                                 (analogous for objects)
 array[0..., T]                  [default(T), ...]
 range[T]                        default(T); this may be out of the valid range
-T = enum                        cast[T](0); this may be an invalid value
+T = enum                        cast[T]\(0); this may be an invalid value
 ============================    ==============================================
 
 
@@ -3023,8 +3029,8 @@ Nim不需要 *get-properties* ：使用 *方法调用语法* 调用的普通get-
   assert x == y
 
 命令调用语法也不能将复杂表达式作为参数。
-例如： (`匿名过程`_), ``if``, ``case`` 或 ``try`` 。
-没有参数的函数调用仍需要()来区分调用和函数本身作为第一类值。
+例如： (`anonymous procs <#procedures-anonymous-procs>`_), ``if``, ``case`` 或 ``try`` 。
+调用没有参数的函数仍需要 () 来区分调用和作为第一类值的函数本身。
 
 
 闭包
@@ -3039,13 +3045,13 @@ Nim不需要 *get-properties* ：使用 *方法调用语法* 调用的普通get-
 在循环中创建闭包
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-由于闭包通过引用捕获局部变量，因此在循环体内通常不需要行为。
-有关如何更改此行为的详细信息，请参阅 `closureScope <system.html#closureScope>`_ 。
+由于闭包通过引用来捕获局部变量，因此通常我们不希望在循环体中这么用。
+想了解如何修改这种操作的详细说明，请参阅 `closureScope <system.html#closureScope.t,untyped>`_ 。
 
 匿名过程
 ---------------
 
-Procs也可以被视为表达式，在这种情况下，它允许省略proc的名称。
+未命名的过程可以作为 lambda 表达式传递到其他过程中:
 
 .. code-block:: nim
   var cities = @["Frankfurt", "Tokyo", "New York", "Kyiv"]
@@ -3054,7 +3060,10 @@ Procs也可以被视为表达式，在这种情况下，它允许省略proc的�
       cmp(x.len, y.len))
 
 
-Procs as表达式既可以作为嵌套proc，也可以作为顶级可执行代码。
+Procs as表达式既可以作为嵌套的 Proc 出现，也可以作为顶级可执行代码出现。
+`sugar<sugar.html>` 模块包含 `=>` 宏，
+该宏可以为类似 lambdas 的匿名过程提供更简洁的语法，
+就像你在 JavaScript 、 C# 等语言中那样使用。
 
 
 函数
@@ -3077,7 +3086,7 @@ The ``func`` 关键字为 `noSideEffect`:idx: 的过程引入了一个快捷方�
 
 由于实现简单，它们不能重载以下内置过程（它们需要专门的语义检查）:
 
-  declared, defined, definedInScope, compiles, sizeOf,
+  declared, defined, definedInScope, compiles, sizeof,
   is, shallowCopy, getAst, astToStr, spawn, procCall
 
 因此，它们更像关键词而非普通标识符;然而，与关键字不同，重新定义可能是 `shadow`:idx: ``system`` 模块中的定义。
@@ -3212,8 +3221,8 @@ Nim的更高版本可以使用如下语法更准确地了解借用规则：
       a, b: Expression
 
   method eval(e: Expression): int {.base.} =
-    # 重写基方法
-    quit "to override!"
+    # 重写 base 方法
+    raise newException(CatchableError, "Method without implementation override")
 
   method eval(e: Literal): int = return e.x
 
@@ -4364,6 +4373,25 @@ Bind语句
 
 这里的问题是编译器已经决定 ``something()`` 作为迭代器在 ``toSeq`` 将其转换为序列之前不可调用。
 
+It is also not possible to use fully qualified identifiers with module
+symbol in method call syntax. The order in which the dot operator
+binds to symbols prohibits this.
+
+.. code-block:: nim
+    :test: "nim c $1"
+    :status: 1
+
+   import sequtils
+
+   var myItems = @[1,3,3,7]
+   let N1 = count(myItems, 3) # OK
+   let N2 = sequtils.count(myItems, 3) # fully qualified, OK
+   let N3 = myItems.count(3) # OK
+   let N4 = myItems.sequtils.count(3) # illegal, `myItems.sequtils` can't be resolved
+
+This means that when for some reason a procedure needs a
+disambiguation through the module name, the call needs to be
+written in function call syntax.
 
 宏
 ======
@@ -5072,7 +5100,8 @@ noSideEffect编译指示
 如果它的参数都没有类型``var T``或``ref T``或``ptr T``，这意味着没有修改位置。
 如果编译器无法验证，则将proc / iterator标记为无副作用是一个静态错误。
 
-作为一种特殊的语义规则，内置的 `debugEcho <system.html#debugEcho>`_ 没有副作用，因此它可以用于调试标记为 ``noSideEffect`` 的例程。
+作为一种特殊的语义规则，内置的 `<system.html#debugEcho,varargs[typed,]>`_ 假装没有副作用，
+这样它就可以用来调试标记为 ``noSideEffect`` 的例程了。
 
 ``func`` 是没有副作用的proc语法糖。
 
@@ -5301,7 +5330,8 @@ unroll编译指示
 immediate编译指示
 ----------------
 
-immediate编译指示已经弃用。请参阅 `类型化和无类型形参`_.
+编译指示 immediate 已被弃用。
+参阅 `指定类型和无类型参数 <#templates-typed-vs-untyped-parameters>`_.
 
 
 编译选项编译指示
@@ -5341,6 +5371,25 @@ push和pop编译指示
   # 编译本节而不进行运行时检查，因为它对速度至关重要
   # ... some code ...
   {.pop.} # 恢复堆栈
+
+`push/pop`:idx: can switch on/off some standard library pragmas, example:
+
+.. code-block:: nim
+  {.push inline.}
+  proc thisIsInlined(): int = 42
+  func willBeInlined(): float = 42.0
+  {.pop.}
+  proc notInlined(): int = 9
+
+  {.push discardable, boundChecks: off, compileTime, noSideEffect, experimental.}
+  template example(): string = "https://nim-lang.org"
+  {.pop.}
+
+  {.push deprecated, hint[LineTooLong]: off, used, stackTrace: off.}
+  proc sample(): bool = true
+  {.pop.}
+
+For third party pragmas it depends on its implementation, but uses the same syntax.
 
 
 register编译指示
@@ -5425,12 +5474,18 @@ experimental编译指示
 示例：
 
 .. code-block:: nim
+  import threadpool
   {.experimental: "parallel".}
+
+  proc threadedEcho(s: string, i: int) =
+    echo(s, " ", $i)
 
   proc useParallel() =
     parallel:
       for i in 0..4:
-        echo "echo in parallel"
+        spawn threadedEcho("echo in parallel", i)
+
+  useParallel()
 
 
 作为顶级语句，实验编译指示为其启用的模块的其余部分启用了一项功能。
@@ -6042,9 +6097,9 @@ Importc编译指示
 
 请注意，此编译指示有点用词不当：其他后端确实在同一名称下提供相同的功能。
 
-此外，如果一个人正在与C++或Objective-C对接，可以使用 `ImportCpp pragma <manual.html＃implementation-specific-pragmas-importcpp-pragma>`_ 或 `importObjC pragma <manual.html＃implementation-specific-pragmas- importobjc-pragma>`_ 。
-
-传递给 ``importc`` 的字符串文字可以是格式字符串：
+ * `importcpp <manual.html#implementation-specific-pragmas-importcpp-pragma>`_
+ * `importobjc <manual.html#implementation-specific-pragmas-importobjc-pragma>`_
+ * `importjs <manual.html#implementation-specific-pragmas-importjs-pragma>`_
 
 .. code-block:: Nim
   proc p(s: cstring) {.importc: "prefix$1".}

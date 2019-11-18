@@ -50,7 +50,7 @@ when defined(haiku):
                                                     header: "<OS.h>".}
 
 proc countProcessors*(): int {.rtl, extern: "ncpi$1".} =
-  ## 返回机器处理器的核数。
+  ## 返回机器处理器的处理器/核心的数量。
   ## 如果无法检测，返回0。
   when defined(windows):
     type
