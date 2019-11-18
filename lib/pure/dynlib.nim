@@ -7,8 +7,8 @@
 #    distribution, for details about the copyright.
 #
 
-## 该模块实现了一些访问动态共享库中符号的方法。在 Posix 系统上使用的是 `dlsym` 机制，
-## 而在 windows 平台，则是 `LoadLibrary` 。
+## 该模块实现了一些访问动态共享库中符号的方法。在 Posix 系统上使用的是 dlsym 机制，
+## 而在 windows 平台，则是 LoadLibrary 。
 ##
 ## 例子
 ## ========
@@ -16,8 +16,8 @@
 ## 加载一个简单的 c 函数
 ## ---------------------------
 ##
-## 下面的例子演示了从某个动态库中加载一个名为 `greet` 的函数，在运行时载入哪个库取决于语言的选择。
-## 如果该库载入失败或者 `greet` 函数没有找到，代码会以返回错误码的方式结束。
+## 下面的例子演示了从某个动态库中加载一个名为 greet 的函数，在运行时载入哪个库取决于语言的选择。
+## 如果该库载入失败或者 greet 函数没有找到，代码会以返回错误码的方式结束。
 ##
 ## .. code-block::nim
 ##
@@ -57,7 +57,7 @@ type
   LibHandle* = pointer ## 一个指向动态加载库的句柄
 
 proc loadLib*(path: string, globalSymbols = false): LibHandle {.gcsafe.}
-  ## 从路径 `path` 引入一个库。如果加载失败，则返回`nil`。
+  ## 从路径 `path` 引入一个库。如果加载失败，则返回 `nil`。
 
 proc loadLib*(): LibHandle {.gcsafe.}
   ## 从当前可执行文件获取动态库的句柄，如果库无法加载，则返回 nil
